@@ -1,0 +1,113 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: BLOBS Swagger Documentation
+  license:
+    name: MIT
+paths:
+  /blobs:
+    post:
+      summary: Create a Blob
+      operationId: createBlob
+      tags:
+        - blobs
+      requestBody:
+        description: A JSON object containing Blob request information
+        content:
+          application/json:
+            schema:
+                $ref: "#/components/schemas/BlobRequest"
+      responses:
+        '201':
+          description: Valid Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlobResponse"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal Server Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /blobs/{blob_id}:
+    get:
+      summary: Info for a specific blob
+      operationId: getBlobById
+      tags:
+        - blobs
+      parameters:
+        - name: blob_id
+          in: path
+          required: true
+          description: The id of the blob to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Valid Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlobResponse"
+        '404':
+          description: Blob not found 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        '500':
+          description: Internal Server Error 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    BlobRequest:
+      type: object
+      properties:
+        callback_url:
+          type: string
+    BlobResponse:
+      type: object
+      required:
+        - blob_id
+        - callback_url
+        - presigned_url
+      properties:
+        blob_id:
+          type: string
+        callback_url:
+          type: string
+        presigned_url:
+          type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

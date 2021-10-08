@@ -1,0 +1,108 @@
+service: blobs
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  stage: dev
+  environment:
+    REGION: us-east-1
+    BLOBS_TABLE: blobs
+    BUCKET_NAME: blobs-s3-ag-rekognition
+    MAX_LABELS: 10
+  region: ${self:provider.environment.REGION}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource:
+        - 'arn:aws:s3:::${self:provider.environment.BUCKET_NAME}/*'
+    - Effect: "Allow"
+      Action:
+        - "rekognition:*"
+      Resource: "*"
+plugins:
+  - serverless-apigateway-service-proxy
+  - serverless-python-requirements
+resources:
+  Resources:
+    Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.BUCKET_NAME}
+        BucketEncryption:
+          ServerSideEncryptionConfiguration:
+            - ServerSideEncryptionByDefault:
+                SSEAlgorithm: AES256
+        VersioningConfiguration:
+          Status: Enabled
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders: ['*']
+              AllowedMethods: [GET, PUT]
+              AllowedOrigins: ['*']
+              Id: CORSRuleId1
+              MaxAge: '3600'
+    BlobsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: "blob_id"
+            AttributeType: "S"   
+        KeySchema:
+          -
+            AttributeName: "blob_id"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: "NEW_AND_OLD_IMAGES"
+        TableName: ${self:provider.environment.BLOBS_TABLE}
+functions:
+  blobsPost:
+    handler: lambdas/CreateBlob.execute
+    events:
+      - http:
+          path: blobs
+          method: post
+  blobsProcess:
+    handler: lambdas/ProcessBlob.execute
+    events:
+      - s3:
+          bucket: ${self:provider.environment.BUCKET_NAME}
+          event: s3:ObjectCreated:*
+          existing: true
+  makeCallback:
+    handler: lambdas/MakeCallback.execute
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt:
+              - BlobsDynamoDbTable
+              - StreamArn
+          batchSize: 1
+custom:
+  pythonRequirements:
+    dockerizePip: true
+    useDownloadCache: true
+    useStaticCache: true
+    cacheLocation: ./.serverless/.requirements_cache
+  apiGatewayServiceProxies:
+    - dynamodb:
+        path: /blobs/{blob_id}
+        method: get
+        tableName: ${self:provider.environment.BLOBS_TABLE}
+        hashKey:
+          pathParam: blob_id
+          attributeType: S
+        action: GetItem
+        cors: true
