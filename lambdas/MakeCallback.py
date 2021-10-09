@@ -1,6 +1,8 @@
 import json
-import requests
 from urllib.parse import urlparse
+
+import backoff
+import requests
 
 
 def execute(event, context):
@@ -12,11 +14,19 @@ def execute(event, context):
                     url = record['dynamodb']['NewImage']['callback_url']['S']
                     payload = record['dynamodb']['NewImage']['labels']['S']
                     if url_validator(url):
-                        requests.post(url, data=payload)
+                        send_request(url, payload)
                     else:
                         print("Invalid URL: " + url + " callback method defined!")
             except Exception as e:
                 print(str(e))
+
+
+@backoff.on_exception(backoff.expo,
+                      requests.exceptions.RequestException,
+                      max_tries=10,
+                      jitter=None)
+def send_request(url, payload):
+    requests.post(url, data=payload)
 
 
 def url_validator(url):

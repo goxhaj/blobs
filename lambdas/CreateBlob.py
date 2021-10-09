@@ -1,16 +1,26 @@
+import datetime
 import json
+import os
 import uuid
+
 import boto3
 from botocore.client import Config
-import os
-import datetime
 
 REGION = os.environ['REGION']
 TABLE = os.environ['BLOBS_TABLE']
 BUCKET_NAME = os.environ['BUCKET_NAME']
+MAX_ATTEMPTS_S3 = os.environ['MAX_ATTEMPTS_S3']
+MAX_ATTEMPTS_DYNAMODB = os.environ['MAX_ATTEMPTS_DYNAMODB']
 
-s3 = boto3.client('s3', region_name=REGION, config=Config(signature_version='s3v4'))
-dynamodb = boto3.client('dynamodb', region_name=REGION)
+s3 = boto3.client('s3', region_name=REGION, config=Config(signature_version='s3v4', retries={
+    'max_attempts': int(MAX_ATTEMPTS_S3),
+    'mode': 'standard'
+}))
+dynamodb = boto3.client('dynamodb', region_name=REGION, config=Config(retries={
+    'max_attempts': int(MAX_ATTEMPTS_DYNAMODB),
+    'mode': 'standard'
+}))
+
 
 def execute(event, context):
     print("***")
@@ -20,7 +30,7 @@ def execute(event, context):
     try:
         # get callback url
         callback_url = ""
-        if (event["body"] is not None):
+        if event["body"] is not None:
             body = json.loads(event["body"])
             callback_url = body["callback_url"]
 

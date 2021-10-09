@@ -5,7 +5,7 @@ import time
 
 SERVICE = 'https://bj4wilra8f.execute-api.us-east-1.amazonaws.com/dev/blobs'
 CALLBACK_URL = 'https://webhook.site/67679c5d-0e2a-47e6-8e73-1b53138bd617'
-SLEEP = 1.5
+SLEEP = 2# > 2 sec for labels
 CHECK_FOR_LABELS = False
 
 
@@ -150,8 +150,9 @@ class TestCases(unittest.TestCase):
             assert (response_put_s3.status_code == 200)
             time.sleep(SLEEP)
             response_get = requests.get(SERVICE + "/" + response_content["blob_id"])
-            print (response_get.json())
+            print(response_get.json())
             assert (response_get.status_code == 200)
             assert (response_get.json()["blob_id"] == response_content["blob_id"])
             assert (response_get.json()["callback_url"] == "test6")
-            assert (response_get.json()["error_message"] == "An error occurred (InvalidImageFormatException) when calling the DetectLabels operation: Request has invalid image format")
+            assert (response_get.json()[
+                        "error_message"] == "An error occurred (InvalidImageFormatException) when calling the DetectLabels operation: Request has invalid image format")

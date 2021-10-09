@@ -9,6 +9,9 @@ provider:
     BLOBS_TABLE: blobs
     BUCKET_NAME: blobs-s3-ag-rekognition
     MAX_LABELS: 5
+    MAX_ATTEMPTS_S3: 10
+    MAX_ATTEMPTS_DYNAMODB: 10
+    MAX_ATTEMPTS_REKOGNITION: 10
   region: ${self:provider.environment.REGION}
   iamRoleStatements:
     - Effect: Allow
