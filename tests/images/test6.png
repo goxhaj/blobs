@@ -1,0 +1,136 @@
+{
+    'Labels': [{
+            'Name': 'Car',
+            'Confidence': 99.98123168945312,
+            'Instances': [{
+                    'BoundingBox': {
+                        'Width': 0.6665682196617126,
+                        'Height': 0.4535948932170868,
+                        'Left': 0.1534070074558258,
+                        'Top': 0.32661816477775574
+                    },
+                    'Confidence': 99.98123168945312
+                }
+            ],
+            'Parents': [{
+                    'Name': 'Vehicle'
+                }, {
+                    'Name': 'Transportation'
+                }
+            ]
+        }, {
+            'Name': 'Vehicle',
+            'Confidence': 99.98123168945312,
+            'Instances': [],
+            'Parents': [{
+                    'Name': 'Transportation'
+                }
+            ]
+        }, {
+            'Name': 'Transportation',
+            'Confidence': 99.98123168945312,
+            'Instances': [],
+            'Parents': []
+        }, {
+            'Name': 'Sports Car',
+            'Confidence': 99.66072082519531,
+            'Instances': [],
+            'Parents': [{
+                    'Name': 'Car'
+                }, {
+                    'Name': 'Vehicle'
+                }, {
+                    'Name': 'Transportation'
+                }
+            ]
+        }, {
+            'Name': 'Coupe',
+            'Confidence': 99.08467864990234,
+            'Instances': [],
+            'Parents': [{
+                    'Name': 'Sports Car'
+                }, {
+                    'Name': 'Car'
+                }, {
+                    'Name': 'Vehicle'
+                }, {
+                    'Name': 'Transportation'
+                }
+            ]
+        }, {
+            'Name': 'Tire',
+            'Confidence': 97.43475341796875,
+            'Instances': [],
+            'Parents': []
+        }, {
+            'Name': 'Wheel',
+            'Confidence': 96.18270111083984,
+            'Instances': [{
+                    'BoundingBox': {
+                        'Width': 0.08306775242090225,
+                        'Height': 0.1846838742494583,
+                        'Left': 0.7266414761543274,
+                        'Top': 0.4810527563095093
+                    },
+                    'Confidence': 91.84569549560547
+                }, {
+                    'BoundingBox': {
+                        'Width': 0.10035079717636108,
+                        'Height': 0.21279536187648773,
+                        'Left': 0.4673190116882324,
+                        'Top': 0.5633984208106995
+                    },
+                    'Confidence': 89.8727798461914
+                }
+            ],
+            'Parents': []
+        }, {
+            'Name': 'Alloy Wheel',
+            'Confidence': 93.56278991699219,
+            'Instances': [],
+            'Parents': [{
+                    'Name': 'Wheel'
+                }
+            ]
+        }, {
+            'Name': 'Car Wheel',
+            'Confidence': 91.85301971435547,
+            'Instances': [],
+            'Parents': [{
+                    'Name': 'Tire'
+                }, {
+                    'Name': 'Wheel'
+                }
+            ]
+        }, {
+            'Name': 'Mustang',
+            'Confidence': 87.01248168945312,
+            'Instances': [],
+            'Parents': [{
+                    'Name': 'Coupe'
+                }, {
+                    'Name': 'Sports Car'
+                }, {
+                    'Name': 'Car'
+                }, {
+                    'Name': 'Vehicle'
+                }, {
+                    'Name': 'Transportation'
+                }
+            ]
+        }
+    ],
+    'LabelModelVersion': '2.0',
+    'ResponseMetadata': {
+        'RequestId': 'e4898147-0a17-4346-b4e1-0bf8ec0d4c10',
+        'HTTPStatusCode': 200,
+        'HTTPHeaders': {
+            'x-amzn-requestid': 'e4898147-0a17-4346-b4e1-0bf8ec0d4c10',
+            'content-type': 'application/x-amz-json-1.1',
+            'content-length': '1644',
+            'date': 'Sat, 09 Oct 2021 13:08:36 GMT'
+        },
+        'RetryAttempts': 0
+    }
+}
+}

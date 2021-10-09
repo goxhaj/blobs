@@ -13,39 +13,33 @@ s3 = boto3.client('s3', region_name=REGION, config=Config(signature_version='s3v
 dynamodb = boto3.client('dynamodb', region_name=REGION)
 
 def execute(event, context):
-    print (">> CREATE BLOB | REGION: "+ REGION + " TABLE: " + TABLE + " BUCKET_NAME: " + BUCKET_NAME)
-    print ("***")
-    print (json.dumps(event))
-    print ("***")
+    print("***")
+    print(json.dumps(event))
+    print("***")
 
     try:
-        #get callback url
+        # get callback url
         callback_url = ""
-        if( event["body"] is not None):
-            body=json.loads(event["body"])
+        if (event["body"] is not None):
+            body = json.loads(event["body"])
             callback_url = body["callback_url"]
 
         uuidRequest = str(uuid.uuid4())
-            
+
         dynamodb.put_item(
-            TableName=str(TABLE), 
-            Item={ "blob_id": {'S': uuidRequest}, "callback_url": {'S': callback_url}, "dt_created": {'S': str(datetime.datetime.now())}}
+            TableName=str(TABLE),
+            Item={"blob_id": {'S': uuidRequest}, "callback_url": {'S': callback_url},
+                  "dt_created": {'S': str(datetime.datetime.now())}}
         )
 
         presigned_url = s3.generate_presigned_url(
-        ClientMethod='put_object', 
-        Params={'Bucket': BUCKET_NAME, 'Key': uuidRequest},
-        ExpiresIn=3600)
-    
-        response = {}
-        response["blob_id"] = uuidRequest
-        response["callback_url"] = callback_url
-        response["presigned_url"] = presigned_url
+            ClientMethod='put_object',
+            Params={'Bucket': BUCKET_NAME, 'Key': uuidRequest},
+            ExpiresIn=3600)
 
-        dumped_response= json.dumps(response)
+        response = {"blob_id": uuidRequest, "callback_url": callback_url, "presigned_url": presigned_url}
+        dumped_response = json.dumps(response)
 
-        print ("<< CREATE BLOB | REGION: "+ REGION + " TABLE: " + TABLE + " BUCKET_NAME: " + BUCKET_NAME + " RESPONSE: " + dumped_response)
-        
         return {
             "statusCode": 201,
             "headers": {

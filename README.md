@@ -21,7 +21,7 @@ To deploy the application into a aws account you need: `sls deploy`
 
 # Run tests
 After deploying get the URL of the service and set: SERVICE variable on TestCases.py 
-In root folder run: `python -m unittest tests/TestCases.py`
+In test folder run: `python -m unittest TestCases.py`
 
 # Swagger 
 Check blobs-openapi.yml for documentation
