@@ -15,8 +15,13 @@ This service needs serverless framework that is build on top of nodejs
 * Install serverless-python-requirements that will be used to pack different python libs into the lambda: `sls plugin install -n serverless-python-requirements`
 * Install docker for python libs required by lambdas(needed by the step above) ex: requests: `https://www.docker.com/products/docker-desktop`
 
+
 # Deploy
 To deploy the application into a aws account you need: `sls deploy`
+
+# Run tests
+After deploying get the URL of the service and set: SERVICE variable on TestCases.py 
+In root folder run: `python -m unittest tests/TestCases.py`
 
 # Swagger 
 Check blobs-openapi.yml for documentation
