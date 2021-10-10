@@ -33,22 +33,36 @@ def execute(event, context):
             bucket = record['s3']['bucket']['name']
             key = unquote_plus(record['s3']['object']['key'])
 
-            rekognition_response = rekognition.detect_labels(Image={'S3Object': {'Bucket': bucket, 'Name': key}},
-                                                             MaxLabels=int(MAX_LABELS))
-            response = table.update_item(
-                Key={
-                    "blob_id": str(key)
-                },
-                UpdateExpression="set labels=:labels, dt_updated=:dt_updated",
-                ExpressionAttributeValues={
-                    ':labels': str(rekognition_response),
-                    ':dt_updated': str(datetime.datetime.now())
-                },
-                ReturnValues="UPDATED_NEW"
-            )
-            print(">> DYNAMODB UPDATE")
-            print(response)
-            print("<< DYNAMODB UPDATE")
+            if not blob_already_processed(key):
+                rekognition_response = rekognition.detect_labels(Image={'S3Object': {'Bucket': bucket, 'Name': key}},
+                                                                 MaxLabels=int(MAX_LABELS))
+                response = table.update_item(
+                    Key={
+                        "blob_id": str(key)
+                    },
+                    UpdateExpression="set labels=:labels, dt_updated=:dt_updated",
+                    ExpressionAttributeValues={
+                        ':labels': str(rekognition_response),
+                        ':dt_updated': str(datetime.datetime.now())
+                    },
+                    ReturnValues="UPDATED_NEW"
+                )
+                print(">> DYNAMODB UPDATE")
+                print(response)
+                print("<< DYNAMODB UPDATE")
+            else:
+                msg = "Blob already processed!"
+                table.update_item(
+                    Key={
+                        "blob_id": str(key)
+                    },
+                    UpdateExpression="set error_message=:msg, dt_updated=:dt_updated",
+                    ExpressionAttributeValues={
+                        ':msg': msg,
+                        ':dt_updated': str(datetime.datetime.now())
+                    },
+                    ReturnValues="UPDATED_NEW"
+                )
         except botocore.exceptions.ClientError as error:
             print(">> ERROR")
             print(str(error))
@@ -64,3 +78,17 @@ def execute(event, context):
                 },
                 ReturnValues="UPDATED_NEW"
             )
+
+
+def blob_already_processed(blob_id):
+    try:
+        response = table.get_item(Key={'blob_id': blob_id})
+        print(response)
+        if 'labels' not in response['Item']:
+            return True
+        if 'error_message' not in response['Item']:
+            return True
+    except botocore.exceptions.ClientError as e:
+        print(e.response['Error']['Message'])
+    else:
+        return False

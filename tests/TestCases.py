@@ -156,3 +156,22 @@ class TestCases(unittest.TestCase):
             assert (response_get.json()["callback_url"] == "test6")
             assert (response_get.json()[
                         "error_message"] == "An error occurred (InvalidImageFormatException) when calling the DetectLabels operation: Request has invalid image format")
+
+    def test7(self):
+        response_post = requests.post(SERVICE, json={'callback_url': "test7"})
+        response_content = response_post.json()
+        assert (response_post.status_code == 201)
+
+        with open('images/test1.jpeg', 'rb') as image_file:
+            response_put_s3_req1 = requests.put(response_content["presigned_url"], data=image_file)
+            # this request should not be allowed once the first was made
+            response_put_s3_req2 = requests.put(response_content["presigned_url"], data=image_file)
+            assert (response_put_s3_req1.status_code == 200)
+            assert (response_put_s3_req2.status_code == 200)
+            time.sleep(SLEEP)
+            response_get = requests.get(SERVICE + "/" + response_content["blob_id"])
+            print(response_get.json())
+            assert (response_get.status_code == 200)
+            assert (response_get.json()["blob_id"] == response_content["blob_id"])
+            assert (response_get.json()["callback_url"] == "test7")
+            assert (response_get.json()["error_message"] == "Blob already processed!")
