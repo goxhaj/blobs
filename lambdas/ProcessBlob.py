@@ -83,10 +83,7 @@ def execute(event, context):
 def blob_already_processed(blob_id):
     try:
         response = table.get_item(Key={'blob_id': blob_id})
-        print(response)
-        if 'labels' not in response['Item']:
-            return True
-        if 'error_message' not in response['Item']:
+        if 'labels' in response['Item']:
             return True
     except botocore.exceptions.ClientError as e:
         print(e.response['Error']['Message'])

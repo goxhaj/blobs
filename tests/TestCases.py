@@ -5,7 +5,7 @@ import time
 
 SERVICE = 'https://bj4wilra8f.execute-api.us-east-1.amazonaws.com/dev/blobs'
 CALLBACK_URL = 'https://webhook.site/67679c5d-0e2a-47e6-8e73-1b53138bd617'
-SLEEP = 2# > 2 sec for labels
+SLEEP = 2.5  # > 2 sec for labels
 CHECK_FOR_LABELS = False
 
 
@@ -164,9 +164,12 @@ class TestCases(unittest.TestCase):
 
         with open('images/test1.jpeg', 'rb') as image_file:
             response_put_s3_req1 = requests.put(response_content["presigned_url"], data=image_file)
+            assert (response_put_s3_req1.status_code == 200)
+            time.sleep(2)
+
+        with open('images/test1.jpeg', 'rb') as image_file:
             # this request should not be allowed once the first was made
             response_put_s3_req2 = requests.put(response_content["presigned_url"], data=image_file)
-            assert (response_put_s3_req1.status_code == 200)
             assert (response_put_s3_req2.status_code == 200)
             time.sleep(SLEEP)
             response_get = requests.get(SERVICE + "/" + response_content["blob_id"])
